@@ -39,5 +39,39 @@ namespace TodoApi.Controllers
             return false;
         }
 
+        [HttpGet("{Id}")]
+        public async Task<IActionResult> GetSingle(int id)
+        {
+            try
+            {
+                Usuario p = await _context.usuarios
+                    .FirstOrDefaultAsync(uBusca => uBusca.Id == id);
+
+                return Ok(p);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                List<Usuario> lista = await _context.usuarios
+                .ToListAsync();
+
+                return Ok(lista);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
     }
 }

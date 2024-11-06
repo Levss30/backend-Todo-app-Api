@@ -164,5 +164,21 @@ namespace TodoApi.Controllers
             }
         }
 
+        [HttpPut]
+        public async Task<IActionResult> Update(Usuario novoUsuario)
+        {
+            try
+            {
+                _context.usuarios.Update(novoUsuario);
+                int linhasAfetadas = await _context.SaveChangesAsync();
+
+                return Ok(linhasAfetadas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

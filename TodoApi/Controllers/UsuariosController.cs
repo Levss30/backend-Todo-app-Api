@@ -92,5 +92,77 @@ namespace TodoApi.Controllers
             return tokenHandler.WriteToken(token);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Add(Usuario novoUsuario)
+        {
+            try
+            {
+                await _context.usuarios.AddAsync(novoUsuario);
+                await _context.SaveChangesAsync();
+
+                return Ok(novoUsuario.Id);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Autenticar")]
+        public async Task<IActionResult> AutenticarUsuario(Usuario credenciais)
+        {
+            try
+            {
+                Usuario usuario = await _context.usuarios
+                   .FirstOrDefaultAsync(x => x.Email.ToLower().Equals(credenciais.Email.ToLower()));
+
+                if (usuario == null)
+                {
+                    throw new System.Exception("Usuário não encontrado.");
+                }
+                else if (!Criptografia
+                .VerificarSenhaHash(credenciais.Senha, usuario.Senha_hash, usuario.Senha_salt))
+                {
+                    throw new System.Exception("Senha incorreta.");
+                }
+                else
+                {
+                    usuario.Senha_hash = null;
+                    usuario.Senha_salt = null;
+                    usuario.Token = CriarToken(usuario);
+                    return Ok(usuario);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Registrar")]
+        public async Task<ActionResult> RegistrarUsuario(Usuario user)
+        {
+            try
+            {
+                if (await UsuarioExistente(user.Email))
+                    throw new System.Exception("Email já cadastrado");
+
+                Criptografia.CriarSenhaHash(user.Senha, out byte[] hash, out byte[] salt);
+                user.Senha = string.Empty;
+                user.Senha_hash = hash;
+                user.Senha_salt = salt;
+                await _context.usuarios.AddAsync(user);
+                await _context.SaveChangesAsync();
+
+                return Ok(user.Id);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

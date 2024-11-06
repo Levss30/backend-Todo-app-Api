@@ -180,5 +180,23 @@ namespace TodoApi.Controllers
             }
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                Usuario uRemover = await _context.usuarios
+                    .FirstOrDefaultAsync(u => u.Id == id);
+                _context.usuarios.Remove(uRemover);
+                int linhasAfetadas = await _context.SaveChangesAsync();
+
+                return Ok(linhasAfetadas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

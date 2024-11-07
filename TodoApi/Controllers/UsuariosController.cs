@@ -39,15 +39,16 @@ namespace TodoApi.Controllers
             return false;
         }
 
+        [AllowAnonymous]
         [HttpGet("{Id}")]
         public async Task<IActionResult> GetSingle(int id)
         {
             try
             {
-                Usuario p = await _context.usuarios
+                Usuario u = await _context.usuarios
                     .FirstOrDefaultAsync(uBusca => uBusca.Id == id);
 
-                return Ok(p);
+                return Ok(u);
             }
             catch (Exception ex)
             {
@@ -55,6 +56,7 @@ namespace TodoApi.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("GetAll")]
         public async Task<IActionResult> Get()
         {
